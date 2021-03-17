@@ -82,6 +82,7 @@ process* read_processes(char* filename){
             exit(EXIT_FAILURE);
         }
         
+        // value assignment
         processes->time_arrived = time;
         processes->processs_id = id;
         processes->execution_time = exec_time;
@@ -90,17 +91,20 @@ process* read_processes(char* filename){
         }else if(parall == 'p'){
             processes->parallelisable = 1;
         }
+        
         processes->next = NULL;
         tmp = processes;
 
         while(fscanf(input, "%d %d %d %c\n", &time, &id, &exec_time, &parall)!=EOF){
             tmp->next=(process*)malloc(sizeof(process));
             tmp = tmp->next;
+            
             if (tmp==NULL){
                 printf("Malloc failure for tmp.");
                 exit(EXIT_FAILURE);
             }
 
+            // value assignment
             tmp->time_arrived = time;
             tmp->processs_id = id;
             tmp->execution_time = exec_time;
@@ -110,7 +114,6 @@ process* read_processes(char* filename){
                 tmp->parallelisable = 1;
             }
 
-            //printf("%d %d %d %d\n", processes->time_arrived, processes->processs_id, processes->execution_time, processes->parallelisable);
             tmp->next=NULL;
         }
     
