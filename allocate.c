@@ -1,18 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-typedef struct process_t{
-    int time_arrived;
-    int processs_id;
-    int execution_time;
-    int parallelisable;
-    struct process_t* next;
-}process;
-
-
-void input_handler(int argc, char** argv, char** filename, int* num_processor, int* better_scheduler);
-process* read_processes(char* filename);
+#include "allocate.h"
 
 int main(int argc, char** argv){
     char* filename;
@@ -30,12 +19,12 @@ int main(int argc, char** argv){
 
     processes = read_processes(filename);
 
-    tmp = processes;
-    while(tmp != NULL){
-        printf("%d %d %d %d\n", tmp->time_arrived, tmp->processs_id, tmp->execution_time, tmp->parallelisable);
-        tmp = tmp->next;
-    }
 
+
+
+
+
+    // free up spaces!
     tmp = processes;
     while(processes!=NULL){
         processes=processes->next;
@@ -45,6 +34,11 @@ int main(int argc, char** argv){
 
 }
 
+void simulate(){
+    
+}
+
+// handle command line inputs
 void input_handler(int argc, char** argv, char** filename, int* num_processor, int* better_scheduler){
     for(int i = 0; i < argc; i++){
         
@@ -62,7 +56,10 @@ void input_handler(int argc, char** argv, char** filename, int* num_processor, i
     }
 }
 
+// read processes specs from the file specified
 process* read_processes(char* filename){
+
+
     
     FILE* input = fopen(filename,"r");
     process* processes;
@@ -125,4 +122,36 @@ process* read_processes(char* filename){
     fclose(input);
 
     return processes;
+}
+
+// push a new process to the CPU
+void push(process** head, process** new_process){
+    process* tmp = *head;
+    if((*head)->execution_time > (*new_process)->execution_time){
+        (*new_process)->next = *head;
+        *head = *new_process;
+
+    }else{
+        while(tmp->next != NULL && tmp->next->execution_time < (*new_process)->execution_time){
+            tmp = tmp->next;
+        }
+        (*new_process)->next=tmp->next;
+        tmp->next = *new_process;
+    }
+}
+
+// pop the head of the CPU queueueueueueueueueueue
+void pop(process** head){
+    process* tmp = *head;
+    *head = (*head)->next;
+    free(head);
+}
+
+// sum the remaining execution time of the given CPU
+int time_sum(process* head){
+    int time = 0;
+    while(head != NULL){
+        time += head->execution_time;
+        head = head->next;
+    }
 }
