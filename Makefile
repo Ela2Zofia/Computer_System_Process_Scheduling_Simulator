@@ -1,5 +1,15 @@
 CC = gcc
 CFLAGS = -Wall
 
-allocate: allocate.c allocate.h
-	$(CC) -o allocate allocate.c -g
+allocate: allocate.o pq.o
+	$(CC) -o allocate allocate.o pq.o -g
+
+allocate.o: allocate.c allocate.h pq.h
+	$(CC) -c allocate.c
+
+pq.o: pq.c pq.h
+	$(CC) -c pq.c
+	
+clean :
+	rm *.o $(objects) allocate 
+	

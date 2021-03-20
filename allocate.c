@@ -19,9 +19,7 @@ int main(int argc, char** argv){
 
     processes = read_processes(filename);
 
-
-
-
+    simulate(&processes, num_processor, time);
 
 
     // free up spaces!
@@ -34,8 +32,55 @@ int main(int argc, char** argv){
 
 }
 
-void simulate(){
+void simulate(process** processes, int num_processor, int time){
+    // CPUs are represented as an array of linked lists
+    process* cpu[num_processor];
     
+    for(int i = 0; i < num_processor; i++){
+        cpu[i] = NULL;
+    }
+
+    while( *processes != NULL && !is_finished(cpu, num_processor)){
+
+        // single processor
+        if (num_processor == 1){
+            if (*processes){
+                
+                while (time == (*processes)->time_arrived){
+                    process* new_process = pop(processes);
+                    push(&(cpu[0]), new_process);
+                }
+            }
+
+            if (cpu[0]){
+                cpu[0]->execution_time -= 1;
+
+            }
+
+
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    }
 }
 
 // handle command line inputs
@@ -59,8 +104,6 @@ void input_handler(int argc, char** argv, char** filename, int* num_processor, i
 // read processes specs from the file specified
 process* read_processes(char* filename){
 
-
-    
     FILE* input = fopen(filename,"r");
     process* processes;
     process* tmp;
@@ -124,27 +167,15 @@ process* read_processes(char* filename){
     return processes;
 }
 
-// push a new process to the CPU
-void push(process** head, process** new_process){
-    process* tmp = *head;
-    if((*head)->execution_time > (*new_process)->execution_time){
-        (*new_process)->next = *head;
-        *head = *new_process;
-
-    }else{
-        while(tmp->next != NULL && tmp->next->execution_time < (*new_process)->execution_time){
-            tmp = tmp->next;
+// check if all processes has been finished
+int is_finished(process** cpu, int num_processor){
+    int result = 1;
+    for(int i = 0; i < num_processor; i++){
+        if (cpu[i] != NULL){
+            result = 0;
         }
-        (*new_process)->next=tmp->next;
-        tmp->next = *new_process;
     }
-}
-
-// pop the head of the CPU queueueueueueueueueueue
-void pop(process** head){
-    process* tmp = *head;
-    *head = (*head)->next;
-    free(head);
+    return result;
 }
 
 // sum the remaining execution time of the given CPU
