@@ -1,7 +1,8 @@
 typedef struct process_t{
     int time_arrived;
-    int processs_id;
+    double processs_id;
     int execution_time;
+    int remaining_time;
     int parallelisable;
     struct process_t* next;
 }process;

@@ -9,6 +9,7 @@ void push(process** head, process* new_process){
     new->time_arrived=new_process->time_arrived;
     new->processs_id=new_process->processs_id;
     new->execution_time=new_process->execution_time;
+    new->remaining_time=new_process->execution_time;
     new->parallelisable=new_process->parallelisable;
     new->next=NULL;
     
@@ -17,16 +18,16 @@ void push(process** head, process* new_process){
     if (!(*head)){
         *head=new;
     }else{
-        if((*head)->execution_time > new->execution_time){
+        if((*head)->remaining_time > new->remaining_time){
                 
                 new->next = *head;
                 *head = new;
 
         }else{
-            while(tmp->next != NULL && tmp->next->execution_time <= new->execution_time){
+            while(tmp->next != NULL && tmp->next->remaining_time <= new->remaining_time){
                 //printf("%d\n", (*head)->processs_id);
                 // break tie favouring the process with smaller id when execution times are identical
-                if (tmp->next->execution_time == new->execution_time && tmp->next->processs_id > new->processs_id){
+                if (tmp->next->remaining_time == new->remaining_time && tmp->next->processs_id > new->processs_id){
                     //break;
                 }
                 

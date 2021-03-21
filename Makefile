@@ -2,7 +2,7 @@ CC = gcc
 CFLAGS = -Wall
 
 allocate: allocate.o pq.o
-	$(CC) -o allocate allocate.o pq.o -g
+	$(CC) -o allocate allocate.o pq.o -g -lm
 
 allocate.o: allocate.c allocate.h pq.h
 	$(CC) -c allocate.c -g
