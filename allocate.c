@@ -9,8 +9,8 @@ int main(int argc, char** argv){
     int better_scheduler = 0;
     int time = 0;
     process* processes;
-    process* tmp;
-    int line_count;
+    process* temp;
+    int line_count = 4;
 
     input_handler(argc, argv, &filename, &num_processor, &better_scheduler);
     
@@ -19,68 +19,78 @@ int main(int argc, char** argv){
 
     processes = read_processes(filename);
 
-    simulate(&processes, num_processor, time);
+
+    simulate(&processes, num_processor, time, line_count);
 
 
     // free up spaces!
-    tmp = processes;
-    while(processes!=NULL){
-        processes=processes->next;
-        free(tmp);
-        tmp=processes;
-    }
+    // tmp = processes;
+    // while(processes!=NULL){
+    //     processes=processes->next;
+    //     free(tmp);
+    //     tmp=processes;
+    // }
 
 }
 
-void simulate(process** processes, int num_processor, int time){
+void simulate(process** processes, int num_processor, int time, int line_count){
     // CPUs are represented as an array of linked lists
     process* cpu[num_processor];
-    
-    for(int i = 0; i < num_processor; i++){
+    int current_id = -1;
+
+
+    for (int i = 0; i < num_processor; i++){
         cpu[i] = NULL;
     }
+    // process* tmp;
+    // tmp = *processes;
+    // while (tmp != NULL){
+    //     printf("%d\n", tmp->processs_id);
+    //     tmp = tmp->next;
+    // }
 
-    while( *processes != NULL && !is_finished(cpu, num_processor)){
-
+    while((*processes)!=NULL || !is_finished(cpu, num_processor)){
+        
+        
         // single processor
         if (num_processor == 1){
-            if (*processes){
-                
-                while (time == (*processes)->time_arrived){
-                    process* new_process = pop(processes);
-                    push(&(cpu[0]), new_process);
+
+            // check if the current process finishes
+            if (cpu[0] != NULL){
+                current_id = cpu[0]->processs_id;
+                if (cpu[0]->execution_time > 1){
+                    cpu[0]->execution_time--;
+                }else{
+                    process* finished = pop(&cpu[0]);
+                    printf("%d,FINISHED,pid=%d,proc_remaining=%d\n", time, finished->processs_id, line_count);
+                    free(finished);
+                    finished = NULL;
                 }
+                
             }
 
-            if (cpu[0]){
-                cpu[0]->execution_time -= 1;
-
+            // check if it is time for new process to arrive
+            while ((*processes) != NULL && time == (*processes)->time_arrived){
+                process* new_process = pop(processes);
+                push(&cpu[0], new_process);
+                line_count--;
+                free(new_process);
+                new_process = NULL;
             }
 
-
+            // print out message when a new process is started or old one resumes
+            if (cpu[0] != NULL && current_id != cpu[0]->processs_id){
+                    printf("%d,RUNNING,pid=%d,remaining_time=%d,cpu=0\n", time, cpu[0]->processs_id, cpu[0]->execution_time);
+            }
+            
+            time++;
+            //printf("Time: %d\n",time);
+        }else{
+            break;
         }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     }
+
 }
 
 // handle command line inputs
