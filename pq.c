@@ -28,7 +28,7 @@ void push(process** head, process* new_process){
                 //printf("%d\n", (*head)->processs_id);
                 // break tie favouring the process with smaller id when execution times are identical
                 if (tmp->next->remaining_time == new->remaining_time && tmp->next->processs_id > new->processs_id){
-                    //break;
+                    break;
                 }
                 
                 tmp = tmp->next;
