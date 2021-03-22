@@ -14,7 +14,7 @@ void push(process** head, process* new_process){
     new->parallelisable=new_process->parallelisable;
     new->next=NULL;
     
-    sort(head, &new_process);
+    sort(head, &new);
 
     // if (!(*head)){
     //     *head=new;

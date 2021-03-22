@@ -87,6 +87,8 @@ void simulate(process** processes, int num_processor, int time, int line_count){
         // multiprocessors
         else{
             //printf("Time: %d Process Time: %d\n", time, (*processes)->time_arrived);
+            process* finished_processes = NULL;
+            
             // check if a process is finished
             for(int i = 0; i < num_processor; i++){
                 if (cpu[i] != NULL){
@@ -96,14 +98,30 @@ void simulate(process** processes, int num_processor, int time, int line_count){
                     }else{
                         process* finished = pop(&cpu[i]);
                         if (finished->parallelisable == 0){
+                            if (finished_processes == NULL){
+                                finished_processes = finished;
+                            }else{
+                                process* tmp = finished_processes;
+                                process* prev = finished_processes;
+                                while(tmp!=NULL && tmp->processs_id < finished->processs_id){
+                                    prev = tmp;
+                                    tmp = tmp->next;
+                                }
+                                prev->next = finished;
+                                finished->next = tmp;
+                            }
+
                             process_count--;
-                            printf("%d,FINISHED,pid=%d,proc_remaining=%d\n", time, (int)finished->processs_id, process_count);
+
+                            // printf("%d,FINISHED,pid=%d,proc_remaining=%d\n", time, (int)finished->processs_id, process_count);
+                            
                             turnaround += (time - finished->time_arrived);
                             double overhead = (time - finished->time_arrived)/(double)finished->execution_time;
                             overhead_sum += overhead;
                             if (overhead > max_overhead){
                                 max_overhead = overhead;
                             }
+
                         }else{
                             multiprocess* tmp = controller;
                             
@@ -115,8 +133,21 @@ void simulate(process** processes, int num_processor, int time, int line_count){
                             if (tmp->subprocess > 1){
                                 tmp->subprocess--;
                             }else{
+                                if (finished_processes == NULL){
+                                    finished_processes = finished;
+                                }else{
+                                    process* tmp = finished_processes;
+                                    process* prev = finished_processes;
+                                    while(tmp!=NULL &&  tmp->processs_id < finished->processs_id){
+                                        prev = tmp;
+                                        tmp = tmp->next;
+                                    }
+                                    prev->next = finished;
+                                    finished->next = tmp;
+                                }
+                                
                                 process_count--;
-                                printf("%d,FINISHED,pid=%d,proc_remaining=%d\n", time, (int)finished->processs_id, process_count);
+                                // printf("%d,FINISHED,pid=%d,proc_remaining=%d\n", time, (int)finished->processs_id, process_count);
                                 
                                 turnaround += (time - finished->time_arrived);
                                 double overhead = (time - finished->time_arrived)/(double)finished->execution_time;
@@ -126,15 +157,22 @@ void simulate(process** processes, int num_processor, int time, int line_count){
                                 }
                             }
                         }
-                        free(finished);
-                        finished = NULL;
+                        
                     }
                 }
-
             }
+
+            while(finished_processes != NULL){
+                process* finished = pop(&finished_processes);
+                printf("%d,FINISHED,pid=%d,proc_remaining=%d\n", time, (int)finished->processs_id, process_count);
+                free(finished);
+                finished = NULL;
+            }
+
 
             process* new_processes = NULL;
 
+            // read in processes and sort them
             while ((*processes) != NULL && time == (*processes)->time_arrived){
                 
                 process* new = pop(processes);
@@ -144,38 +182,9 @@ void simulate(process** processes, int num_processor, int time, int line_count){
                 
                 // sort the new processes
                 sort(&new_processes, &new);
-                
-                // if (new_processes == NULL){
-                //     new_processes = new;
-                // }else{
-                    
-                //     if(new_processes->remaining_time > new->remaining_time || (new_processes->remaining_time == new->remaining_time && new_processes->processs_id > new->processs_id)){  
-                //         new->next = new_processes;
-                //         new_processes = new;
-                        
-                //     }else{
-
-                //         while(tmp != NULL && tmp->remaining_time <= new->remaining_time){
-
-                //             // break tie favouring the process with smaller id when execution times are identical
-                //             if (tmp->remaining_time == new->remaining_time && tmp->processs_id > new->processs_id){
-                //                 break;
-                //             }
-                //             prev = tmp;
-                //             tmp = tmp->next;
-                            
-                //         }
-                //         new->next= tmp;
-                //         prev->next = new;
-                //     }
-                // }
-                
-                // free(new_process);
-                // new_process = NULL;
             }
 
-            
-            
+            // assign processes to the CPUs
             while(new_processes!=NULL){
                 
                 process* new_process = pop(&new_processes);
@@ -252,6 +261,7 @@ void simulate(process** processes, int num_processor, int time, int line_count){
 
             }
 
+            // check for running processes
             for(int i = 0; i < num_processor; i++){
                 if (cpu[i] != NULL && current_id[i] != cpu[i]->processs_id){
                     if (cpu[i]->parallelisable == 0){
@@ -397,4 +407,8 @@ int time_sum(process* head){
         head = head->next;
     }
     return time;
+}
+
+int process_sum(process** head, int num_processor){
+
 }
