@@ -190,7 +190,7 @@ void simulate(process** processes, int num_processor, int time, int line_count){
                         subprocess->time_arrived = new_process->time_arrived;
                         subprocess->processs_id = new_process->processs_id + i*0.1;
                         subprocess->execution_time = new_process->execution_time;
-                        subprocess->remaining_time = new_process->execution_time / k + 1;
+                        subprocess->remaining_time = new_process->execution_time / k + (new_process->execution_time % k != 0) + 1;
                         subprocess->parallelisable = new_process->parallelisable;
                         subprocess->next = NULL;
                         push(&cpu[cpu_order[i]], subprocess);
