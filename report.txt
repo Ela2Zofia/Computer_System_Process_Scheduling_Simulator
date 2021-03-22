@@ -1,0 +1,1 @@
+The makespan of scheduling is improved by making sure all the parrallelisabel processes' execution time can be divided by a k value such that there is no remainder left. Which reduces the extra time caused by spliting the process.
