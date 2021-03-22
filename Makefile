@@ -11,5 +11,5 @@ pq.o: pq.c pq.h
 	$(CC) -c pq.c -g
 	
 clean :
-	rm *.o $(objects) allocate 
+	rm -f *.o $(objects) allocate 
 	

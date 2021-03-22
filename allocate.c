@@ -134,6 +134,8 @@ void simulate(process** processes, int num_processor, int time, int line_count){
                             // check if all subprocesses of the parent process are finished, if yes, finish the process
                             if (tmp->subprocess > 1){
                                 tmp->subprocess--;
+                                free(finished);
+                                finished = NULL;
                             }else{
                                 if (finished_processes == NULL){
                                     finished_processes = finished;
@@ -226,7 +228,7 @@ void simulate(process** processes, int num_processor, int time, int line_count){
                 if (new_process->parallelisable == 0){
                     
                     push(&cpu[cpu_order[0]], new_process); 
-
+                    
                 }else{
                     int k = num_processor;
                     while(new_process->execution_time / k < 1){
@@ -260,6 +262,8 @@ void simulate(process** processes, int num_processor, int time, int line_count){
                     }
                 }
 
+                free(new_process);
+                new_process = NULL;
 
             }
 
