@@ -1,6 +1,7 @@
 #include "pq.h"
 #include <stdlib.h>
 #include <stdio.h>
+
 // push a new process to the CPU
 void push(process** head, process* new_process){
     // process* tmp = (*head);
@@ -14,32 +15,7 @@ void push(process** head, process* new_process){
     new->parallelisable=new_process->parallelisable;
     new->next=NULL;
     
-    sort(head, &new);
-
-    // if (!(*head)){
-    //     *head=new;
-    // }else{
-        
-    //     if((*head)->remaining_time > new->remaining_time || ((*head)->remaining_time == new->remaining_time && (*head)->processs_id > new->processs_id)){  
-    //         new->next = *head;
-    //         *head = new;
-    //     }else{
-    //         while(tmp != NULL && tmp->remaining_time <= new->remaining_time){
-
-    //             // break tie favouring the process with smaller id when execution times are identical
-    //             if (tmp->remaining_time == new->remaining_time && tmp->processs_id > new->processs_id){
-    //                 break;
-    //             }
-
-    //             prev = tmp;
-    //             tmp = tmp->next;
-                
-    //         }
-    //         new->next=tmp;
-    //         prev->next = new;
-    //     }
-    // }
-    
+    sort(head, &new);    
 }
 
 // pop the head of the CPU queueueueueueueueueueue
@@ -52,7 +28,8 @@ process* pop(process** head){
     return tmp;
 }
 
-// sort the processes
+// sort the processes according to their remaining time for execution
+// Importance rank: remaining_time > process_id
 void sort(process** head, process** new){
     process* tmp = (*head);
     process* prev = (*head);

@@ -1,3 +1,7 @@
+/*
+By Jiawei(Derrick) Li, Student ID 1008207
+Last modified: March 22nd, 2021
+*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -17,7 +21,6 @@ int main(int argc, char** argv){
     // printf("Custom scheduler: %d\n",better_scheduler);
 
     processes = read_processes(filename);
-    //printf("Process Time: %d ID %f\n", processes->time_arrived, processes->processs_id);
 
     simulate(&processes, num_processor, time, line_count);
 
@@ -25,7 +28,9 @@ int main(int argc, char** argv){
 
 }
 
+
 void simulate(process** processes, int num_processor, int time, int line_count){
+    
     // CPUs are represented as an array of linked lists
     process* cpu[num_processor];
     double current_id[num_processor];
@@ -41,6 +46,8 @@ void simulate(process** processes, int num_processor, int time, int line_count){
 
     multiprocess* controller = NULL;
 
+    // keep the simulation running as long as there are still new processes
+    // or unfinished processes.
     while((*processes) != NULL || !is_finished(cpu, num_processor)){
         
         // single processor
@@ -88,18 +95,21 @@ void simulate(process** processes, int num_processor, int time, int line_count){
         }
         // multiprocessors
         else{
-            //printf("Time: %d Process Time: %d\n", time, (*processes)->time_arrived);
             process* finished_processes = NULL;
             
             // check if a process is finished
             for(int i = 0; i < num_processor; i++){
+                
                 if (cpu[i] != NULL){
                     current_id[i] = cpu[i]->processs_id;
+
                     if (cpu[i]->remaining_time > 1){
                         cpu[i]->remaining_time--;
                     }else{
                         process* finished = pop(&cpu[i]);
+                        
                         if (finished->parallelisable == 0){
+                            
                             if (finished_processes == NULL){
                                 finished_processes = finished;
                             }else{
@@ -115,15 +125,13 @@ void simulate(process** processes, int num_processor, int time, int line_count){
 
                             process_count--;
 
-                            // printf("%d,FINISHED,pid=%d,proc_remaining=%d\n", time, (int)finished->processs_id, process_count);
-                            
+                            // stats calculation
                             turnaround += (time - finished->time_arrived);
                             double overhead = (time - finished->time_arrived)/(double)finished->execution_time;
                             overhead_sum += overhead;
                             if (overhead > max_overhead){
                                 max_overhead = overhead;
                             }
-
                         }else{
                             multiprocess* tmp = controller;
                             
@@ -151,8 +159,8 @@ void simulate(process** processes, int num_processor, int time, int line_count){
                                 }
                                 
                                 process_count--;
-                                // printf("%d,FINISHED,pid=%d,proc_remaining=%d\n", time, (int)finished->processs_id, process_count);
-                                
+
+                                // stats calculation
                                 turnaround += (time - finished->time_arrived);
                                 double overhead = (time - finished->time_arrived)/(double)finished->execution_time;
                                 overhead_sum += overhead;
@@ -166,6 +174,7 @@ void simulate(process** processes, int num_processor, int time, int line_count){
                 }
             }
 
+            // print out all finished processes at this time stage
             while(finished_processes != NULL){
                 process* finished = pop(&finished_processes);
                 printf("%d,FINISHED,pid=%d,proc_remaining=%d\n", time, (int)finished->processs_id, process_count);
@@ -235,6 +244,7 @@ void simulate(process** processes, int num_processor, int time, int line_count){
                         k--;
                     }
                     
+                    // create subprocesses
                     for(int i = 0; i < k; i++){
                         process* subprocess = malloc(sizeof(process));
                         subprocess->time_arrived = new_process->time_arrived;
@@ -246,7 +256,8 @@ void simulate(process** processes, int num_processor, int time, int line_count){
                         push(&cpu[cpu_order[i]], subprocess);
                         free(subprocess);
                     }
-                    
+
+                    // keep record of the status of parrallelisable processes
                     if (controller == NULL){
                         controller = malloc(sizeof(multiprocess));
                         controller->process_id = new_process->processs_id;
@@ -279,19 +290,9 @@ void simulate(process** processes, int num_processor, int time, int line_count){
             }
             
             time++;
-
-            // process* tmp;
-            // while (new_processes != NULL){
-            //     tmp = new_processes;
-            //     new_processes = new_processes->next;
-            //     free(tmp);
-            // }
-
         }
 
     }
-
-
 
     int t_time = turnaround / line_count + (turnaround % line_count != 0);
 
@@ -306,6 +307,7 @@ void simulate(process** processes, int num_processor, int time, int line_count){
        controller = controller->next;
        free(tmp);
     }
+
 }
 
 // handle command line inputs
@@ -413,8 +415,4 @@ int time_sum(process* head){
         head = head->next;
     }
     return time;
-}
-
-int process_sum(process** head, int num_processor){
-
 }
