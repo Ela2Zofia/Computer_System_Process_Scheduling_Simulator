@@ -21,6 +21,8 @@ int main(int argc, char** argv){
 
     simulate(&processes, num_processor, time, line_count);
 
+    return 0;
+
 }
 
 void simulate(process** processes, int num_processor, int time, int line_count){
