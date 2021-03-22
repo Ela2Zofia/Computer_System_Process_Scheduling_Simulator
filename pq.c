@@ -9,7 +9,7 @@ void push(process** head, process* new_process){
     new->time_arrived=new_process->time_arrived;
     new->processs_id=new_process->processs_id;
     new->execution_time=new_process->execution_time;
-    new->remaining_time=new_process->execution_time;
+    new->remaining_time=new_process->remaining_time;
     new->parallelisable=new_process->parallelisable;
     new->next=NULL;
     

@@ -97,6 +97,12 @@ void simulate(process** processes, int num_processor, int time, int line_count){
                         if (finished->parallelisable == 0){
                             line_count--;
                             printf("%d,FINISHED,pid=%d,proc_remaining=%d\n", time, (int)finished->processs_id, line_count);
+                            turnaround += (time - finished->time_arrived);
+                            double overhead = (time - finished->time_arrived)/(double)finished->execution_time;
+                            overhead_sum += overhead;
+                            if (overhead > max_overhead){
+                                max_overhead = overhead;
+                            }
                         }else{
                             multiprocess* tmp = controller;
                             
@@ -110,6 +116,13 @@ void simulate(process** processes, int num_processor, int time, int line_count){
                             }else{
                                 line_count--;
                                 printf("%d,FINISHED,pid=%d,proc_remaining=%d\n", time, (int)finished->processs_id, line_count);
+                                
+                                turnaround += (time - finished->time_arrived);
+                                double overhead = (time - finished->time_arrived)/(double)finished->execution_time;
+                                overhead_sum += overhead;
+                                if (overhead > max_overhead){
+                                    max_overhead = overhead;
+                                }
                             }
                         }
                         free(finished);
@@ -172,7 +185,7 @@ void simulate(process** processes, int num_processor, int time, int line_count){
                         process* subprocess = malloc(sizeof(process));
                         subprocess->time_arrived = new_process->time_arrived;
                         subprocess->processs_id = new_process->processs_id + i*0.1;
-                        subprocess->execution_time = new_process->execution_time / k + 1;
+                        subprocess->execution_time = new_process->execution_time;
                         subprocess->remaining_time = new_process->execution_time / k + 1;
                         subprocess->parallelisable = new_process->parallelisable;
                         subprocess->next = NULL;
@@ -184,7 +197,9 @@ void simulate(process** processes, int num_processor, int time, int line_count){
                         controller = malloc(sizeof(multiprocess));
                         controller->process_id = new_process->processs_id;
                         controller->subprocess = k;
+                        controller->next=NULL;
                     }else{
+                        
                         multiprocess* new_controller = malloc(sizeof(multiprocess));
                         new_controller->process_id=new_process->processs_id;
                         new_controller->subprocess = k;
@@ -221,11 +236,11 @@ void simulate(process** processes, int num_processor, int time, int line_count){
     printf("Makespan %d\n", time-1);
 
     // free up spaces!
-    multiprocess* tmp = controller;
-    while(controller!=NULL){
-        controller = controller->next;
-        free(tmp);
-        tmp = controller;
+    multiprocess* tmp;
+    while (controller != NULL){
+       tmp = controller;
+       controller = controller->next;
+       free(tmp);
     }
 }
 
