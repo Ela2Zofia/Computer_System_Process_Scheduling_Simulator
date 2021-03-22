@@ -133,11 +133,52 @@ void simulate(process** processes, int num_processor, int time, int line_count){
 
             }
 
+            process* new_processes = NULL;
+
             while ((*processes) != NULL && time == (*processes)->time_arrived){
                 
-                process* new_process = pop(processes);
+                process* new = pop(processes);
+                process* tmp = new_processes;
+                process* prev = new_processes;
                 process_count++;
                 
+                // sort the new processes
+                sort(&new_processes, &new);
+                
+                // if (new_processes == NULL){
+                //     new_processes = new;
+                // }else{
+                    
+                //     if(new_processes->remaining_time > new->remaining_time || (new_processes->remaining_time == new->remaining_time && new_processes->processs_id > new->processs_id)){  
+                //         new->next = new_processes;
+                //         new_processes = new;
+                        
+                //     }else{
+
+                //         while(tmp != NULL && tmp->remaining_time <= new->remaining_time){
+
+                //             // break tie favouring the process with smaller id when execution times are identical
+                //             if (tmp->remaining_time == new->remaining_time && tmp->processs_id > new->processs_id){
+                //                 break;
+                //             }
+                //             prev = tmp;
+                //             tmp = tmp->next;
+                            
+                //         }
+                //         new->next= tmp;
+                //         prev->next = new;
+                //     }
+                // }
+                
+                // free(new_process);
+                // new_process = NULL;
+            }
+
+            
+            
+            while(new_processes!=NULL){
+                
+                process* new_process = pop(&new_processes);
                 int min_time = -1;
                 int cpu_time[num_processor];
                 int cpu_order[num_processor];
@@ -167,17 +208,13 @@ void simulate(process** processes, int num_processor, int time, int line_count){
                             
                         }
                     }
-                    // printf("cpu: %d\n", min_cpu);
                     cpu_order[i] = min_cpu;
                     min_time = local_min;
                 }
-                
 
                 if (new_process->parallelisable == 0){
                     
-                    push(&cpu[cpu_order[0]], new_process);
-                    free(new_process);
-                    new_process = NULL;
+                    push(&cpu[cpu_order[0]], new_process); 
 
                 }else{
                     int k = num_processor;
@@ -210,9 +247,9 @@ void simulate(process** processes, int num_processor, int time, int line_count){
                         new_controller->next = controller;
                         controller = new_controller;
                     }
-                
-
                 }
+
+
             }
 
             for(int i = 0; i < num_processor; i++){
@@ -226,6 +263,13 @@ void simulate(process** processes, int num_processor, int time, int line_count){
             }
             
             time++;
+
+            // process* tmp;
+            // while (new_processes != NULL){
+            //     tmp = new_processes;
+            //     new_processes = new_processes->next;
+            //     free(tmp);
+            // }
 
         }
 

@@ -3,8 +3,8 @@
 #include <stdio.h>
 // push a new process to the CPU
 void push(process** head, process* new_process){
-    process* tmp = (*head);
-    process* prev = (*head);
+    // process* tmp = (*head);
+    // process* prev = (*head);
     process* new = (process*)malloc(sizeof(process));
 
     new->time_arrived=new_process->time_arrived;
@@ -14,37 +14,31 @@ void push(process** head, process* new_process){
     new->parallelisable=new_process->parallelisable;
     new->next=NULL;
     
-    //printf("Exe Time: %d\n", new->execution_time);
+    sort(head, &new_process);
 
-    if (!(*head)){
-        *head=new;
-    }else{
+    // if (!(*head)){
+    //     *head=new;
+    // }else{
         
-        if((*head)->remaining_time >= new->remaining_time){  
-            if ((*head)->remaining_time == new->remaining_time && (*head)->processs_id > new->processs_id){
-                new->next = *head;
-                *head = new;
-            }else{
-                new->next = *head;
-                *head = new;
-            }
-            
-        }else{
-            while(tmp != NULL && tmp->remaining_time <= new->remaining_time){
+    //     if((*head)->remaining_time > new->remaining_time || ((*head)->remaining_time == new->remaining_time && (*head)->processs_id > new->processs_id)){  
+    //         new->next = *head;
+    //         *head = new;
+    //     }else{
+    //         while(tmp != NULL && tmp->remaining_time <= new->remaining_time){
 
-                // break tie favouring the process with smaller id when execution times are identical
-                if (tmp->remaining_time == new->remaining_time && tmp->processs_id > new->processs_id){
-                    break;
-                }
+    //             // break tie favouring the process with smaller id when execution times are identical
+    //             if (tmp->remaining_time == new->remaining_time && tmp->processs_id > new->processs_id){
+    //                 break;
+    //             }
+
+    //             prev = tmp;
+    //             tmp = tmp->next;
                 
-                tmp = tmp->next;
-                prev = tmp;
-            }
-            new->next=tmp;
-            prev->next = new;
-        }
-
-    }
+    //         }
+    //         new->next=tmp;
+    //         prev->next = new;
+    //     }
+    // }
     
 }
 
@@ -54,5 +48,36 @@ process* pop(process** head){
     *head = (*head)->next;
     //printf("%d\n", (*head) == NULL);
     //free(head);
+    tmp->next = NULL;
     return tmp;
+}
+
+// sort the processes
+void sort(process** head, process** new){
+    process* tmp = (*head);
+    process* prev = (*head);
+
+    if (!(*head)){
+        *head = *new;
+    }else{
+        
+        if((*head)->remaining_time > (*new)->remaining_time || ((*head)->remaining_time == (*new)->remaining_time && (*head)->processs_id > (*new)->processs_id)){  
+            (*new)->next = *head;
+            *head = *new;
+        }else{
+            while(tmp != NULL && tmp->remaining_time <= (*new)->remaining_time){
+
+                // break tie favouring the process with smaller id when execution times are identical
+                if (tmp->remaining_time == (*new)->remaining_time && tmp->processs_id > (*new)->processs_id){
+                    break;
+                }
+
+                prev = tmp;
+                tmp = tmp->next;
+                
+            }
+            (*new)->next=tmp;
+            prev->next = *new;
+        }
+    }
 }
