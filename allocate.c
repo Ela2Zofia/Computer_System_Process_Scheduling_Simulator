@@ -287,7 +287,7 @@ void simulate(process** processes, int num_processor, int time, int line_count){
 
 
 
-    int t_time = turnaround/ (double)line_count + 0.5;
+    int t_time = turnaround / line_count + (turnaround % line_count != 0);
 
     printf("Turnaround time %d\n", t_time);
     printf("Time overhead %.2f %.2f\n", max_overhead+0.005, (overhead_sum/line_count)+0.005);
