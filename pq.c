@@ -4,6 +4,7 @@
 // push a new process to the CPU
 void push(process** head, process* new_process){
     process* tmp = (*head);
+    process* prev = (*head);
     process* new = (process*)malloc(sizeof(process));
 
     new->time_arrived=new_process->time_arrived;
@@ -18,23 +19,28 @@ void push(process** head, process* new_process){
     if (!(*head)){
         *head=new;
     }else{
-        if((*head)->remaining_time > new->remaining_time){
-                
+        if((*head)->remaining_time >= new->remaining_time){  
+            if ((*head)->remaining_time == new->remaining_time && (*head)->processs_id > new->processs_id){
                 new->next = *head;
                 *head = new;
-
+            }else{
+                new->next = *head;
+                *head = new;
+            }
+            
         }else{
-            while(tmp->next != NULL && tmp->next->remaining_time <= new->remaining_time){
-                //printf("%d\n", (*head)->processs_id);
+            while(tmp != NULL && tmp->remaining_time <= new->remaining_time){
+
                 // break tie favouring the process with smaller id when execution times are identical
-                if (tmp->next->remaining_time == new->remaining_time && tmp->next->processs_id > new->processs_id){
+                if (tmp->remaining_time == new->remaining_time && tmp->processs_id > new->processs_id){
                     break;
                 }
                 
                 tmp = tmp->next;
+                prev = tmp;
             }
-            new->next=tmp->next;
-            tmp->next = new;
+            new->next=tmp;
+            prev->next = new;
         }
 
     }
