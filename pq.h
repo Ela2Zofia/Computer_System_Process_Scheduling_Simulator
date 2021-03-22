@@ -12,3 +12,5 @@ void push(process** head, process* new_process);
 process* pop(process** head);
 
 void sort(process** head, process** new);
+
+void longest_first_sort(process** head, process** new);

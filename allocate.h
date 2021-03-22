@@ -10,7 +10,7 @@ typedef struct multiprocess_t{
 }multiprocess;
 
 
-void simulate(process** processes, int num_processor, int time, int line_count);
+void simulate(process** processes, int num_processor, int time, int line_count, int better_scheduler);
 
 void input_handler(int argc, char** argv, char** filename, int* num_processor, int* better_scheduler);
 

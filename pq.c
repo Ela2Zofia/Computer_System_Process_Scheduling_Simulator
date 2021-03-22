@@ -58,3 +58,33 @@ void sort(process** head, process** new){
         }
     }
 }
+
+void longest_first_sort(process** head, process** new){
+    process* tmp = (*head);
+    process* prev = (*head);
+    
+    if (!(*head)){
+        *head = *new;
+    }else{
+        
+        if((*head)->remaining_time < (*new)->remaining_time || ((*head)->remaining_time == (*new)->remaining_time && (*head)->processs_id > (*new)->processs_id)){  
+            (*new)->next = *head;
+            *head = *new;
+        }else{
+            while(tmp != NULL && tmp->remaining_time >= (*new)->remaining_time){
+
+                // break tie favouring the process with smaller id when execution times are identical
+                if (tmp->remaining_time == (*new)->remaining_time && tmp->processs_id > (*new)->processs_id){
+                    break;
+                }
+
+                prev = tmp;
+                tmp = tmp->next;
+                
+            }
+            (*new)->next=tmp;
+            prev->next = *new;
+        }
+    }
+
+}

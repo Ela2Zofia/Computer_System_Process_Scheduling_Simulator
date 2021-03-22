@@ -22,14 +22,14 @@ int main(int argc, char** argv){
 
     processes = read_processes(filename);
 
-    simulate(&processes, num_processor, time, line_count);
+    simulate(&processes, num_processor, time, line_count, better_scheduler);
 
     return 0;
 
 }
 
 
-void simulate(process** processes, int num_processor, int time, int line_count){
+void simulate(process** processes, int num_processor, int time, int line_count, int better_scheduler){
     
     // CPUs are represented as an array of linked lists
     process* cpu[num_processor];
@@ -95,8 +95,12 @@ void simulate(process** processes, int num_processor, int time, int line_count){
         }
         // multiprocessors
         else{
-            process* finished_processes = NULL;
+            //------------------------------------------------------------------------------
+            //------------------------- finished processes part ----------------------------
+            //------------------------------------------------------------------------------            
             
+            process* finished_processes = NULL;
+
             // check if a process is finished
             for(int i = 0; i < num_processor; i++){
                 
@@ -107,7 +111,7 @@ void simulate(process** processes, int num_processor, int time, int line_count){
                         cpu[i]->remaining_time--;
                     }else{
                         process* finished = pop(&cpu[i]);
-                        
+
                         if (finished->parallelisable == 0){
                             
                             if (finished_processes == NULL){
@@ -169,7 +173,6 @@ void simulate(process** processes, int num_processor, int time, int line_count){
                                 }
                             }
                         }
-                        
                     }
                 }
             }
@@ -181,20 +184,27 @@ void simulate(process** processes, int num_processor, int time, int line_count){
                 free(finished);
                 finished = NULL;
             }
-
-
+            
+            
+            //------------------------------------------------------------------------------
+            //----------------------------- new processes part -----------------------------
+            //------------------------------------------------------------------------------
+            
             process* new_processes = NULL;
-
             // read in processes and sort them
             while ((*processes) != NULL && time == (*processes)->time_arrived){
                 
                 process* new = pop(processes);
-                process* tmp = new_processes;
-                process* prev = new_processes;
                 process_count++;
                 
                 // sort the new processes
-                sort(&new_processes, &new);
+                if (better_scheduler){
+                    //longest_first_sort(&new_processes, &new);
+                    sort(&new_processes, &new);
+                }else{
+                    sort(&new_processes, &new);
+                }
+                
             }
 
             // assign processes to the CPUs
@@ -227,7 +237,6 @@ void simulate(process** processes, int num_processor, int time, int line_count){
                                 local_min = cpu_time[j];
                                 min_cpu = j;
                             }
-                            
                         }
                     }
                     cpu_order[i] = min_cpu;
@@ -236,13 +245,21 @@ void simulate(process** processes, int num_processor, int time, int line_count){
 
                 if (new_process->parallelisable == 0){
                     
-                    push(&cpu[cpu_order[0]], new_process); 
+                    push(&cpu[cpu_order[0]], new_process);
                     
                 }else{
                     int k = num_processor;
-                    while(new_process->execution_time / k < 1){
-                        k--;
+
+                    if (better_scheduler){
+                        while(new_process->execution_time / k < 1 || (new_process->execution_time % k != 0)){
+                            k--;
+                        }
+                    }else{
+                        while(new_process->execution_time / k < 1){
+                            k--;
+                        }
                     }
+                    
                     
                     // create subprocesses
                     for(int i = 0; i < k; i++){
