@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <math.h>
 #include "allocate.h"
 
 int main(int argc, char** argv){
@@ -31,7 +30,7 @@ void simulate(process** processes, int num_processor, int time, int line_count){
     int turnaround = 0;
     double overhead_sum = 0;
     double max_overhead = -1;
-    double process_count = line_count;
+    int process_count = 0;
 
     for (int i = 0; i < num_processor; i++){
         cpu[i] = NULL;
@@ -52,8 +51,8 @@ void simulate(process** processes, int num_processor, int time, int line_count){
                     cpu[0]->remaining_time--;
                 }else{
                     process* finished = pop(&cpu[0]);
-                    line_count--;
-                    printf("%d,FINISHED,pid=%d,proc_remaining=%d\n", time, (int)finished->processs_id, line_count);
+                    process_count--;
+                    printf("%d,FINISHED,pid=%d,proc_remaining=%d\n", time, (int)finished->processs_id, process_count);
                     
                     // calculate turnaround time and overhead
                     turnaround += (time - finished->time_arrived);
@@ -71,7 +70,9 @@ void simulate(process** processes, int num_processor, int time, int line_count){
             // check if it is time for new process to arrive
             while ((*processes) != NULL && time == (*processes)->time_arrived){
                 process* new_process = pop(processes);
+                process_count++;
                 push(&cpu[0], new_process);
+                
                 free(new_process);
                 new_process = NULL;
             }
@@ -95,8 +96,8 @@ void simulate(process** processes, int num_processor, int time, int line_count){
                     }else{
                         process* finished = pop(&cpu[i]);
                         if (finished->parallelisable == 0){
-                            line_count--;
-                            printf("%d,FINISHED,pid=%d,proc_remaining=%d\n", time, (int)finished->processs_id, line_count);
+                            process_count--;
+                            printf("%d,FINISHED,pid=%d,proc_remaining=%d\n", time, (int)finished->processs_id, process_count);
                             turnaround += (time - finished->time_arrived);
                             double overhead = (time - finished->time_arrived)/(double)finished->execution_time;
                             overhead_sum += overhead;
@@ -114,8 +115,8 @@ void simulate(process** processes, int num_processor, int time, int line_count){
                             if (tmp->subprocess > 1){
                                 tmp->subprocess--;
                             }else{
-                                line_count--;
-                                printf("%d,FINISHED,pid=%d,proc_remaining=%d\n", time, (int)finished->processs_id, line_count);
+                                process_count--;
+                                printf("%d,FINISHED,pid=%d,proc_remaining=%d\n", time, (int)finished->processs_id, process_count);
                                 
                                 turnaround += (time - finished->time_arrived);
                                 double overhead = (time - finished->time_arrived)/(double)finished->execution_time;
@@ -133,7 +134,10 @@ void simulate(process** processes, int num_processor, int time, int line_count){
             }
 
             while ((*processes) != NULL && time == (*processes)->time_arrived){
+                
                 process* new_process = pop(processes);
+                process_count++;
+                
                 int min_time = -1;
                 int cpu_time[num_processor];
                 int cpu_order[num_processor];
@@ -229,10 +233,10 @@ void simulate(process** processes, int num_processor, int time, int line_count){
 
 
 
-    int t_time = turnaround/process_count + 0.5;
+    int t_time = turnaround/line_count + 0.5;
 
     printf("Turnaround time %d\n", t_time);
-    printf("Time overhead %.2f %.2f\n", max_overhead+0.005, (overhead_sum/process_count)+0.005);
+    printf("Time overhead %.2f %.2f\n", max_overhead+0.005, (overhead_sum/line_count)+0.005);
     printf("Makespan %d\n", time-1);
 
     // free up spaces!

@@ -19,6 +19,7 @@ void push(process** head, process* new_process){
     if (!(*head)){
         *head=new;
     }else{
+        
         if((*head)->remaining_time >= new->remaining_time){  
             if ((*head)->remaining_time == new->remaining_time && (*head)->processs_id > new->processs_id){
                 new->next = *head;
